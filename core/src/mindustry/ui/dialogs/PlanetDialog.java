@@ -1170,6 +1170,37 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
         });
     }
 
+    /** Confirms, backs up and clears the selected sector before starting a new game. */
+    void playNewSelected(){
+        if(selected == null) return;
+
+        Sector sector = selected;
+        ui.showConfirm("@sectors.newgame.confirm", () -> {
+            try{
+                control.saves.resetSectorSave(sector);
+            }catch(Exception e){
+                ui.showException("[accent]" + Core.bundle.get("savefail"), e);
+                return;
+            }
+
+            hide();
+            control.playSector(sector);
+        });
+    }
+
+    /** Restores the previous explicit backup and launches it. */
+    void restoreSectorBackup(Sector sector){
+        try{
+            if(!control.saves.restoreSectorBackup(sector)) return;
+        }catch(Exception e){
+            ui.showException("[accent]" + Core.bundle.get("savefail"), e);
+            return;
+        }
+
+        hide();
+        control.playSector(sector);
+    }
+
     void addSurvivedInfo(Sector sector, Table table, boolean wrap){
         if(!wrap){
             table.add("@sectors.underattack").wrapLabel(wrap).row();
@@ -1336,15 +1367,32 @@ public class PlanetDialog extends BaseDialog implements PlanetInterfaceRenderer{
             }
 
             boolean noCandidate = hasNoCandidate(sector);
+            boolean hasSave = sector.save != null && mode == look;
 
-            stable.button(
-                mode == select ? "@sectors.select" :
-                sector.isBeingPlayed() ? "@sectors.resume" :
-                sector.hasBase() ? "@sectors.go" :
-                locked ? "@locked" :
-                noCandidate ? "@sectors.nolaunchcandidate" :
-                "@sectors.launch",
-                locked ? Icon.lock : Icon.play, this::playSelected).growX().height(54f).minWidth(170f).padTop(4).disabled(locked || noCandidate);
+            if(hasSave){
+                stable.table(t -> {
+                    t.defaults().height(54f).minWidth(150f).growX().padTop(4f);
+                    t.button("@sectors.resume", Icon.play, this::playSelected).disabled(locked || noCandidate);
+                    t.button("@sectors.newgame", Icon.refresh, this::playNewSelected).disabled(locked || noCandidate);
+                }).growX().row();
+                stable.labelWrap("@sectors.resume.hint").color(Color.lightGray).growX().minWidth(150f).padTop(2f)
+                    .with(l -> l.setFontScale(0.85f)).row();
+            }else{
+                stable.button(
+                    mode == select ? "@sectors.select" :
+                    sector.isBeingPlayed() ? "@sectors.resume" :
+                    sector.hasBase() ? "@sectors.go" :
+                    locked ? "@locked" :
+                    noCandidate ? "@sectors.nolaunchcandidate" :
+                    "@sectors.launch",
+                    locked ? Icon.lock : Icon.play, this::playSelected).growX().height(54f).minWidth(170f).padTop(4).disabled(locked || noCandidate);
+            }
+        }
+
+        //Recovery bypasses launching and remains available even when the current sector base was lost.
+        if(mode == look && control.saves.hasSectorBackup(sector)){
+            stable.button("@sectors.restorebackup", Icon.undo, () -> ui.showConfirm("@sectors.restorebackup.confirm", () -> restoreSectorBackup(sector)))
+                .height(54f).minWidth(170f).growX().padTop(4f).row();
         }
 
         stable.pack();

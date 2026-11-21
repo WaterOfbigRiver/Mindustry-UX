@@ -40,7 +40,7 @@ allprojects{
     ext{
         versionNumber = '8'
         if(!project.hasProperty("versionModifier")) versionModifier = 'release'
-        if(!project.hasProperty("versionType")) versionType = 'official'
+        if(!project.hasProperty("versionType")) versionType = 'Mindustry-UX'
         appName = 'Mindustry'
         steamworksVersion = '185e76cfe630a6f0e1dd7b9bf57be41f6064a1f2'
         rhinoVersion = '32395f942976a6d1d21ec9877664554cd5762306'

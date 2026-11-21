@@ -13,7 +13,9 @@ import mindustry.ctype.*;
 import mindustry.entities.units.*;
 import mindustry.game.MapObjectives.*;
 import mindustry.game.*;
+import mindustry.game.EventType.*;
 import mindustry.gen.*;
+import mindustry.graphics.g3d.PlanetGrid.*;
 import mindustry.io.*;
 import mindustry.maps.*;
 import mindustry.mod.*;
@@ -131,6 +133,46 @@ public class ApplicationTests{
         Time.setDeltaProvider(() -> 1f);
         logic.reset();
         state.set(State.menu);
+    }
+
+    @Test
+    void campaignWorldLoadEnablesWaveTimer(){
+        Sector sector = new Sector(new Planet("ux-wave-test", null, 1f), Ptile.empty);
+        state.rules.sector = sector;
+        state.rules.waveTimer = false;
+
+        Events.fire(new WorldLoadEvent());
+
+        assertTrue(state.rules.waveTimer, "campaign sectors must not get stuck waiting for a wave");
+    }
+
+    @Test
+    void sectorSaveCanBeResetAndRestoredFromBackup(){
+        Core.assets = new arc.assets.AssetManager();
+        Saves saves = new Saves();
+        Sector sector = new Sector(new Planet("ux-backup-test", null, 1f), Ptile.empty);
+        Fi saveFile = saves.getSectorFile(sector);
+        saveFile.writeString("previous-run");
+        sector.save = saves.new SaveSlot(saveFile);
+        sector.info.hasCore = true;
+        sector.info.items.add(Items.copper, 125);
+        sector.saveInfo();
+
+        saves.resetSectorSave(sector);
+
+        assertFalse(saveFile.exists());
+        assertNull(sector.save);
+        assertFalse(sector.info.hasCore);
+        assertEquals(0, sector.info.items.get(Items.copper));
+        assertTrue(saves.hasSectorBackup(sector));
+        assertEquals("previous-run", saves.getSectorBackupFile(sector).readString());
+
+        assertTrue(saves.restoreSectorBackup(sector));
+
+        assertEquals("previous-run", saveFile.readString());
+        assertNotNull(sector.save);
+        assertTrue(sector.info.hasCore);
+        assertEquals(125, sector.info.items.get(Items.copper));
     }
 
     @ParameterizedTest

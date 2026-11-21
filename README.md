@@ -1,90 +1,83 @@
-![Logo](core/assets-raw/sprites/ui/logo.png)
+# Mindustry-UX
 
-[![Build Status](https://github.com/Anuken/Mindustry/workflows/Tests/badge.svg?event=push)](https://github.com/Anuken/Mindustry/actions)
-[![Discord](https://img.shields.io/discord/391020510269669376.svg?logo=discord&logoColor=white&logoWidth=20&labelColor=7289DA&label=Discord&color=17cf48)](https://discord.gg/mindustry)  
+An **unofficial**, campaign-focused modified version of [Anuken/Mindustry](https://github.com/Anuken/Mindustry).
 
-The automation tower defense RTS, written in Java.
+Mindustry-UX is maintained by WaterOfbigRiver. It is not affiliated with, endorsed by, or supported by Anuken or the official Mindustry project.
 
-_[Trello Board](https://trello.com/b/aE2tcUwF/mindustry-40-plans)_  
-_[Wiki](https://mindustrygame.github.io/wiki)_  
-_[Javadoc](https://mindustrygame.github.io/docs/)_ 
+## Public feature scope
 
-## Contributing
+The first public prerelease intentionally contains only a small, independently validated feature set:
 
-See [CONTRIBUTING](CONTRIBUTING.md) for general code style and PR guidelines.
+- **Reliable campaign wave countdowns:** campaign world loading enables the automatic wave timer even when a sector map stores `waveTimer=false`.
+- **Clear sector actions:** a sector with an existing save offers separate **Resume** and **New Game** actions.
+- **Previous-run recovery:** starting a new game backs up the previous sector save and its sector information first. **Restore Previous Save** can load that backup after confirmation.
 
-If you are a first-time contributor looking for features to implement or bugs to fix, see the issues tagged with 'candidate' [in the Mindustry-Suggestions repostiory](https://github.com/Anuken/Mindustry-Suggestions/issues?q=is%3Aissue%20state%3Aopen%20label%3Acandidate).
+Experimental developer UI, control changes, unlimited storage, internal documents, local settings, and other unvalidated changes are not part of this repository's public branch.
 
-## Building
+English, Simplified Chinese, and Traditional Chinese strings are included for the new sector actions.
 
-Bleeding-edge builds are generated automatically for every commit. You can see them [here](https://github.com/Anuken/MindustryBuilds/releases).
+## Screenshots
 
-If you'd rather compile on your own, follow these instructions.
-First, make sure you have [JDK 17](https://adoptium.net/temurin/releases/?os=any&arch=any&version=17) installed. **Other JDK versions will not work.** Open a terminal in the Mindustry directory and run the following commands:
+![Sector resume and new game actions](docs/images/campaign-sector-actions.png)
 
-### Windows
+![Campaign gameplay in the public prerelease](docs/images/campaign-gameplay.png)
 
-_Running:_ `gradlew desktop:run`  
-_Building:_ `gradlew desktop:dist`  
-_Sprite Packing:_ `gradlew tools:pack`
+These screenshots are captured from the corresponding public prerelease. They contain no player accounts, local paths, or private saves.
 
-### Linux/Mac OS
+## Download
 
-_Running:_ `./gradlew desktop:run`  
-_Building:_ `./gradlew desktop:dist`  
-_Sprite Packing:_ `./gradlew tools:pack`
+See [Releases](https://github.com/WaterOfbigRiver/Mindustry-UX/releases). Each release lists the exact source commit used for its JAR files and provides SHA-256 checksums.
 
-### Server
+The initial `v0.1.0-alpha.1` prerelease provides desktop and headless server JARs. It does **not** provide an Android APK. Back up your game data before trying a prerelease; save compatibility with future versions is not guaranteed.
 
-Server builds are bundled with each released build (in Releases). If you'd rather compile on your own, replace 'desktop' with 'server', e.g. `gradlew server:dist`.
+### Backup behavior
 
-### Android
+- One explicit previous-run backup is kept per sector.
+- Starting another new game for the same sector replaces that explicit backup.
+- Restoring a backup overwrites the current sector save after confirmation.
+- Backups are local files and are not synchronized to a cloud service.
 
-1. Install the Android SDK [here.](https://developer.android.com/studio#command-tools) Make sure you're downloading the "Command line tools only", as Android Studio is not required.
-2. In the unzipped Android SDK folder, find the cmdline-tools directory. Then create a folder inside of it called `latest` and put all of its contents into the newly created folder.
-3. In the same directory run the command `sdkmanager --licenses` (or `./sdkmanager --licenses` if on linux/mac)
-4. Set the `ANDROID_HOME` environment variable to point to your unzipped Android SDK directory.
-5. Enable developer mode on your device/emulator. If you are on testing on a phone you can follow [these instructions](https://developer.android.com/studio/command-line/adb#Enabling), otherwise you need to google how to enable your emulator's developer mode specifically.
-6. Run `gradlew android:assembleDebug` (or `./gradlew` if on linux/mac). This will create an unsigned APK in `android/build/outputs/apk`.
+## Build from source
 
-To debug the application on a connected device/emulator, run `gradlew android:installDebug android:run`.
+Use **JDK 17**. Other JDK versions are not supported by this build baseline.
 
-### Troubleshooting
+```bash
+git clone --branch public-master --single-branch https://github.com/WaterOfbigRiver/Mindustry-UX.git
+cd Mindustry-UX
+./gradlew desktop:dist server:dist
+```
 
-#### Permission Denied
+On Windows, use `gradlew` instead of `./gradlew`.
 
-If the terminal returns `Permission denied` or `Command not found` on Mac/Linux, run `chmod +x ./gradlew` before running `./gradlew`. *This is a one-time procedure.*
+Outputs:
 
-#### Where is the `mindustry.gen` package?
+- `desktop/build/libs/Mindustry.jar`
+- `server/build/libs/server-release.jar`
 
-As the name implies, `mindustry.gen` is generated *at build time* based on other code. You will not find source code for this package in the repository, and it should not be edited by hand.
+Run the automated tests with:
 
-The following is a non-exhaustive list of the "source" of generated code in `mindustry.gen`:
+```bash
+./gradlew tests:test
+```
 
-- `Call`, `*Packet` classes: Generated from methods marked with `@Remote`.
-- All entity classes (`Unit`, `EffectState`, `Posc`, etc): Generated from component classes in the `mindustry.entities.comp` package, and combined using definitions in `mindustry.content.UnitTypes`.
-- `Sounds`, `Musics`, `Tex`, `Icon`, etc: Generated based on files in the respective asset folders.
+The Gradle dependency is pinned through `archash`. CI fetches Arc commit `7445105cd2683daf5b9ac7033ebb07265d3e814d` explicitly instead of tracking Arc's moving `master` branch.
 
----
+To run the desktop client locally:
 
-Gradle may take up to several minutes to download files. Be patient. <br>
-After building, the output .JAR file should be in `/desktop/build/libs/Mindustry.jar` for desktop builds, and in `/server/build/libs/server-release.jar` for server builds.
+```bash
+./gradlew desktop:run
+```
 
-## Feature Requests
+## Releases and tags
 
-Post feature requests and feedback [here](https://github.com/Anuken/Mindustry-Suggestions/issues/new/choose).
+This fork uses its own `v0.1.x` prerelease tags. GitHub workflows do not push to Anuken/Arc, MindustryGame/docs, MindustryBuilds, or any other external repository. Release assets are built and reviewed before publication.
 
-## AI
+## Contributing and issue scope
 
-- Mindustry does not and **will never** contain art, music, sounds, icons or other assets generated by AI.
-- The same applies to any base writing in the game (`bundle.properties`).
-    - There have historically been a few user-submitted *translation* PRs that used AI (as well as terrible machine-translated ones before mainstream LLMs existed), but they are frowned upon.
-    - AI can be used to check work, but don't use it for translations verbatim, as it is usually awful and lacking context.
-    - I cannot personally verify the quality or amount of machine-translated content in a translation bundle, since I don't speak every language.
-- Pull requests with AI-generated code are **not accepted**.
-- Mindustry **does** contain code written with AI, particularly in tests.
+Issues and pull requests in this repository should concern the public Mindustry-UX changes. Please report upstream-only problems to the appropriate official Mindustry repository instead. Do not attach private saves, credentials, tokens, signing keys, or personal paths.
 
-## Downloads
+## License and modification notice
 
-| [![](https://static.itch.io/images/badge.svg)](https://anuke.itch.io/mindustry)    |    [![](https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png)](https://play.google.com/store/apps/details?id=io.anuke.mindustry)   |    [![](https://fdroid.gitlab.io/artwork/badge/get-it-on.png)](https://f-droid.org/packages/io.anuke.mindustry)	| [![](https://flathub.org/assets/badges/flathub-badge-en.svg)](https://flathub.org/apps/details/com.github.Anuken.Mindustry)  
-|---	|---	|---	|---	|
+The original [GNU General Public License version 3](LICENSE) is retained verbatim. Mindustry-UX modifications made on **2026-11-22** are distributed under the same GPLv3 terms, with no additional restrictions. Upstream copyright, source availability, and asset notices remain applicable.
+
+The source corresponding to a published binary is available from the same release tag and its linked commit. This repository does not provide proprietary builds or private-source binaries under the Mindustry-UX name.

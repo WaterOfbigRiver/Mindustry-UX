@@ -104,6 +104,7 @@ public class Logic implements ApplicationListener{
             if(state.isCampaign()){
                 //enable building AI on campaign unless the preset disables it
                 state.rules.coreIncinerates = true;
+                state.rules.waveTimer = true;
                 state.rules.infiniteResources = false;
                 state.rules.allowEditRules = false;
                 state.rules.allowEditWorldProcessors = false;

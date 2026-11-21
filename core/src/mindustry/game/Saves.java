@@ -250,6 +250,62 @@ public class Saves{
         return saveDirectory.child("sector-" + sector.planet.name + "-" + sector.id + "." + saveExtension);
     }
 
+    /** File holding the previous explicitly abandoned run; Saves.load() skips files containing "backup". */
+    public Fi getSectorBackupFile(Sector sector){
+        return getSectorFile(sector).sibling("sector-" + sector.planet.name + "-" + sector.id + "-backup." + saveExtension);
+    }
+
+    private String getSectorBackupInfoKey(Sector sector){
+        return sector.planet.name + "-s-" + sector.id + "-info-backup";
+    }
+
+    public boolean hasSectorBackup(Sector sector){
+        return getSectorBackupFile(sector).exists();
+    }
+
+    /** Backs up and clears the current run so the next launch starts from scratch. */
+    public void resetSectorSave(Sector sector){
+        Fi file = getSectorFile(sector);
+        if(file.exists()){
+            file.copyTo(getSectorBackupFile(sector));
+            Core.settings.putJson(getSectorBackupInfoKey(sector), sector.info);
+        }
+
+        if(sector.save != null){
+            sector.save.delete();
+            sector.save = null;
+        }else{
+            file.delete();
+        }
+
+        sector.info.items.clear();
+        sector.info.hasCore = false;
+        sector.info.production.clear();
+        sector.saveInfo();
+    }
+
+    /** Restores the previous explicit backup without creating a duplicate save slot. */
+    public boolean restoreSectorBackup(Sector sector){
+        Fi backup = getSectorBackupFile(sector);
+        if(!backup.exists()) return false;
+
+        Fi dest = getSectorFile(sector);
+        backup.copyTo(dest);
+        Core.settings.putJson(sector.planet.name + "-s-" + sector.id + "-info",
+            Core.settings.getJson(getSectorBackupInfoKey(sector), SectorInfo.class, SectorInfo::new));
+        sector.loadInfo();
+        //A restored campaign save contains the previous base; playSector() must load it rather than restart after a loss.
+        sector.info.hasCore = true;
+
+        if(sector.save == null){
+            sector.save = new SaveSlot(dest);
+            sector.save.setName(dest.nameWithoutExtension());
+            saves.add(sector.save);
+        }
+
+        return true;
+    }
+
     public void saveSector(Sector sector){
         if(sector.save == null){
             sector.save = new SaveSlot(getSectorFile(sector));
