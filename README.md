@@ -1,41 +1,99 @@
 # Mindustry-UX
 
-An **unofficial**, campaign-focused modified version of [Anuken/Mindustry](https://github.com/Anuken/Mindustry).
+An **unofficial**, campaign-focused modified version of [Anuken/Mindustry](https://github.com/Anuken/Mindustry), maintained by WaterOfbigRiver.
 
-Mindustry-UX is maintained by WaterOfbigRiver. It is not affiliated with, endorsed by, or supported by Anuken or the official Mindustry project.
+This repository is not affiliated with, endorsed by, or supported by Anuken or the official Mindustry project. It is a fork of Mindustry that keeps the upstream GPLv3 license and adds a small, independently validated set of campaign UX changes.
 
-## Public feature scope
-
-The first public prerelease intentionally contains only a small, independently validated feature set:
-
-- **Reliable campaign wave countdowns:** campaign world loading enables the automatic wave timer even when a sector map stores `waveTimer=false`.
-- **Clear sector actions:** a sector with an existing save offers separate **Resume** and **New Game** actions.
-- **Previous-run recovery:** starting a new game backs up the previous sector save and its sector information first. **Restore Previous Save** can load that backup after confirmation.
-
-Experimental developer UI, control changes, unlimited storage, internal documents, local settings, and other unvalidated changes are not part of this repository's public branch.
-
-English, Simplified Chinese, and Traditional Chinese strings are included for the new sector actions.
+- Public branch: `public-master` (default). `master` still tracks upstream and is not used for releases.
+- Private development repository: `WaterOfbigRiver/Mindustry-UX-dev` (full history and experimental work).
 
 ## Screenshots
 
+Sector actions shown for a sector that already has a save:
+
 ![Sector resume and new game actions](docs/images/campaign-sector-actions.png)
+
+Campaign gameplay in this public prerelease:
 
 ![Campaign gameplay in the public prerelease](docs/images/campaign-gameplay.png)
 
-These screenshots are captured from the corresponding public prerelease. They contain no player accounts, local paths, or private saves.
+Both images are captured from builds of this public branch and contain no player accounts, local paths, or private saves.
+
+## What is different from upstream
+
+The public version contains **two behavior changes** plus the supporting strings, tests, and CI changes. Everything else is upstream Mindustry.
+
+### 1. Campaign wave timer is always enabled on world load
+
+Upstream loads a sector's `waveTimer` rule from the map/save. Some campaign maps and older saves store `waveTimer=false`, which leaves the HUD showing a permanent "waiting" state instead of a countdown.
+
+This version forces the automatic wave timer on when a campaign world is loaded:
+
+```java
+// core/src/mindustry/core/Logic.java, WorldLoadEvent
+state.rules.waveTimer = true;
+```
+
+Effect:
+
+| Situation | Upstream | Mindustry-UX |
+|---|---|---|
+| Sector map stores `waveTimer=false` | HUD shows "waiting", no countdown | Countdown runs normally |
+| Sector map stores `waveTimer=true` | Countdown runs | Unchanged |
+| Custom game / non-campaign | Rule is left alone | Unchanged |
+
+### 2. Explicit "Resume / New Game" and previous-run recovery for sector saves
+
+Upstream shows a single play action for a sector that already has a save. Starting over silently replaces the previous run.
+
+This version:
+
+| Action | Behavior |
+|---|---|
+| **Resume** | Loads the existing sector save, exactly as before |
+| **New Game** | Confirms first, copies the current sector save to an explicit backup, then starts a fresh sector |
+| **Restore Previous Save** | Confirms first, restores the backup over the current sector save |
+
+Backup details:
+
+- Backup file: `sector-<planet>-<id>-backup.msav` in the sector save directory.
+- Backup metadata key: `<planet>-s-<id>-info-backup`, storing the sector info snapshot taken at backup time.
+- Exactly **one** explicit backup is kept per sector; starting another new game replaces it.
+- `Saves.load()` ignores files whose name contains `backup`, so the backup never appears as a normal save slot.
+- If copying the save or writing the backup metadata fails, the new game is aborted and the current save is **not** deleted.
+- On restore, `hasCore` is set back to `true` so the restored sector loads as a normal continuation instead of a lost-sector restart.
+- Restore reuses the existing save slot when present, otherwise creates one, so no duplicate slots appear.
+- The upstream `abandonSectorConfirm` flow is untouched.
+
+### Files touched relative to upstream
+
+| File | Purpose |
+|---|---|
+| `core/src/mindustry/core/Logic.java` | Enable the wave timer on campaign world load |
+| `core/src/mindustry/game/Saves.java` | Backup file/meta helpers, reset and restore operations |
+| `core/src/mindustry/ui/dialogs/PlanetDialog.java` | Resume / New Game actions, restore entry, error handling |
+| `core/assets/bundles/bundle.properties` | New English strings |
+| `core/assets/bundles/bundle_zh_CN.properties` | New Simplified Chinese strings |
+| `core/assets/bundles/bundle_zh_TW.properties` | New Traditional Chinese strings |
+| `tests/src/test/java/ApplicationTests.java` | Regression tests for both changes |
+| `build.gradle` | Default build type is `Mindustry-UX`, not `official` |
+| `.github/workflows/*.yml` | Read-only CI, pinned Arc commit, manual release build |
+
+### Deliberately not included
+
+Experimental developer UI and startup themes, RTS-style mouse changes, unlimited core storage, extended tutorials and objective cards, event log/HUD reworks, mobile pause-menu redesigns, internal documents, local configuration, and any unvalidated feature stay in the private development repository. The public branch is not a build of the private branch with files removed; it is a fresh change set on top of an audited upstream commit.
 
 ## Download
 
 See [Releases](https://github.com/WaterOfbigRiver/Mindustry-UX/releases). Each release lists the exact source commit used for its JAR files and provides SHA-256 checksums.
 
-The initial `v0.1.0-alpha.1` prerelease provides desktop and headless server JARs. It does **not** provide an Android APK. Back up your game data before trying a prerelease; save compatibility with future versions is not guaranteed.
+`v0.1.0-alpha.1` is a prerelease providing:
 
-### Backup behavior
+- `Mindustry.jar` — desktop build (Java 17 required)
+- `server-release.jar` — headless server
+- `SHA256SUMS.txt` — checksums for both files
 
-- One explicit previous-run backup is kept per sector.
-- Starting another new game for the same sector replaces that explicit backup.
-- Restoring a backup overwrites the current sector save after confirmation.
-- Backups are local files and are not synchronized to a cloud service.
+It does **not** provide an Android APK. Back up your game data before trying a prerelease; save compatibility with later versions is not guaranteed.
 
 ## Build from source
 
@@ -60,13 +118,32 @@ Run the automated tests with:
 ./gradlew tests:test
 ```
 
-The Gradle dependency is pinned through `archash`. CI fetches Arc commit `7445105cd2683daf5b9ac7033ebb07265d3e814d` explicitly instead of tracking Arc's moving `master` branch.
-
-To run the desktop client locally:
+Run the desktop client locally:
 
 ```bash
 ./gradlew desktop:run
 ```
+
+Builds used for a release are produced with an explicit, non-official version type:
+
+```bash
+./gradlew desktop:dist server:dist \
+  -PversionType=Mindustry-UX -PversionModifier=alpha -Pbuildversion=1 -PshowCommitHash
+```
+
+The resulting `version.properties` reports `type=Mindustry-UX`, so a modified build never identifies itself as an official Mindustry build.
+
+The Gradle dependency is pinned through `archash` (`7445105cd2`); CI fetches Arc commit `7445105cd2683daf5b9ac7033ebb07265d3e814d` explicitly instead of tracking Arc's moving `master` branch.
+
+## Verification
+
+The published prerelease was built from a fresh single-branch clone of `public-master`:
+
+- `./gradlew tests:cleanTest tests:test` — 349 tests, 0 failures, 0 errors
+- Desktop `Mindustry.jar`: 88,516,853 bytes
+- Server `server-release.jar`: 19,302,955 bytes
+- `version.properties`: `type=Mindustry-UX`, `build=1`, `modifier=alpha`, `commitHash=67f0b478dd`
+- Secret scanning (Gitleaks) over the final tree and the full public history: only pre-existing upstream false positives (a Serbian keybind label and the public upstream Discord client ID)
 
 ## Releases and tags
 
@@ -74,10 +151,27 @@ This fork uses its own `v0.1.x` prerelease tags. GitHub workflows do not push to
 
 ## Contributing and issue scope
 
-Issues and pull requests in this repository should concern the public Mindustry-UX changes. Please report upstream-only problems to the appropriate official Mindustry repository instead. Do not attach private saves, credentials, tokens, signing keys, or personal paths.
+Issues and pull requests here should concern the public Mindustry-UX changes. Report upstream-only problems to the official Mindustry repository. Do not attach private saves, credentials, tokens, signing keys, or personal paths.
 
 ## License and modification notice
 
 The original [GNU General Public License version 3](LICENSE) is retained verbatim. Mindustry-UX modifications made on **2026-11-22** are distributed under the same GPLv3 terms, with no additional restrictions. Upstream copyright, source availability, and asset notices remain applicable.
 
 The source corresponding to a published binary is available from the same release tag and its linked commit. This repository does not provide proprietary builds or private-source binaries under the Mindustry-UX name.
+
+## 中文说明
+
+本项目是 [Anuken/Mindustry](https://github.com/Anuken/Mindustry) 的**非官方**修改版，与 Anuken 及官方项目无隶属或背书关系。
+
+公开版只包含两项改动：
+
+1. **战役波次倒计时**：载入战役区块时强制打开自动波次计时器，修复部分地图或旧存档 `waveTimer=false` 导致的永久“等待中”。
+2. **区块继续 / 新游戏 / 恢复上一局**：已有存档的区块提供独立的“继续”和“新游戏”；开始新游戏前会显式备份上一局，之后可确认恢复。
+
+备份规则：每个区块只保留一份显式备份，再次开始新游戏会覆盖；恢复会覆盖当前区块存档；备份只存在本地，不参与云同步；备份失败会中止新游戏，不会删除当前存档。
+
+不包含 Android APK，不包含实验性开发者界面、鼠标操作改造、无限容量、事件日志/HUD 重做等功能。首次预发布请先备份游戏数据。
+
+构建需要 JDK 17，桌面产物为 `desktop/build/libs/Mindustry.jar`，服务端产物为 `server/build/libs/server-release.jar`。
+
+本项目遵循 **GPLv3**，保留原始许可证、上游版权与署名，不附加额外限制；每个二进制版本对应的源码可从同一 Release 标签获取。
