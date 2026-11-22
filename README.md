@@ -85,7 +85,7 @@ Experimental developer UI and startup themes, RTS-style mouse changes, unlimited
 
 ## Download
 
-See [Releases](https://github.com/WaterOfbigRiver/Mindustry-UX/releases). Each release lists the exact source commit used for its JAR files and provides SHA-256 checksums.
+See [Releases](https://github.com/WaterOfbigRiver/Mindustry-UX/releases). Each release lists the exact source commit used for its JAR files and provides SHA-256 checksums. Fork changes per version are listed in [CHANGELOG.md](CHANGELOG.md).
 
 `v0.1.0-alpha.1` is a prerelease providing:
 

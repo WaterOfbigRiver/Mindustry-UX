@@ -1,80 +1,112 @@
 name: Bug report
-description: An issue with the game.
+description: Report a problem in the public Mindustry-UX build.
+title: "[Bug] "
 labels: ["bug"]
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        This tracker covers the **public Mindustry-UX changes only**: the campaign wave timer and the sector Resume / New Game / Restore Previous Save actions.
+
+        - Bugs that also happen in official Mindustry belong in [Anuken/Mindustry](https://github.com/Anuken/Mindustry/issues).
+        - Do not attach saves with personal data, credentials, tokens, signing keys, or local absolute paths.
+
   - type: dropdown
     id: platform
     attributes:
-      label: Platforms
-      description: On what platforms do you know the bug happens?
+      label: Platform
+      description: Where does the problem happen?
       multiple: false
       options:
-        - Android
-        - iOS
-        - Mac
         - Windows
         - Linux
+        - macOS
+        - Android (self-built)
+        - Other / not sure
     validations:
       required: true
+
   - type: input
-    id: build
+    id: version
     attributes:
-      label: Build
-      description: The build number under the title in the main menu.
-      placeholder: LATEST IS NOT A VERSION, I NEED THE EXACT BUILD NUMBER OF YOUR GAME.
+      label: Version and build
+      description: The exact release tag you downloaded, plus the build number shown under the main menu title.
+      placeholder: "e.g. v0.1.0-alpha.1, build 1"
     validations:
       required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      multiple: false
+      options:
+        - Campaign wave timer
+        - Sector save / Resume / New Game
+        - Restore Previous Save
+        - Build or launch
+        - Other public change
+        - Not sure
+    validations:
+      required: true
+
   - type: textarea
     id: issue
     attributes:
-      label: Issue
-      description: Explain your issue in detail.
+      label: What happened
+      description: Describe the problem and what you expected instead.
     validations:
       required: true
+
   - type: textarea
     id: reproduction
     attributes:
       label: Steps to reproduce
-      description: How you happened across the issue, and what exactly you did to make the bug happen.
+      description: List the exact steps, including the sector, planet, and whether the sector already had a save.
+      placeholder: |
+        1. Load or start sector ...
+        2. Choose ...
+        3. Observe ...
     validations:
       required: true
+
   - type: textarea
     id: mods
     attributes:
       label: Mods used
-      description: The mod repositories or zip files that are related to the issue, if applicable. If you are positive that you have none enabled, write 'none'.
+      description: List enabled mods or write "none". Please retry with all mods disabled if possible.
+      placeholder: none
     validations:
       required: true
+
   - type: textarea
     id: save-file
     attributes:
-      label: Save file
-      description: The (zipped) save file you were playing on when the bug happened. If this happened in the campaign, specify the sector, and attach the file you get from Settings -> Game Data -> Export Data. For custom games, attach the .msav file exported from the save dialog, zipped.
-      placeholder: THIS IS REQUIRED FOR ANY IN-GAME ISSUE. IF YOU DO NOT HAVE A SAVE, DO NOT WASTE TIME OPENING THIS ISSUE.
+      label: Save or backup file
+      description: For save, backup, or restore issues, attach the zipped export from Settings -> Game Data -> Export Data, or the relevant `.msav` file. Remove personal data first.
+      placeholder: Required for save, backup, and restore issues.
     validations:
-      required: true
+      required: false
+
   - type: textarea
     id: logs
     attributes:
-      label: (Crash) logs
-      description: Either crash reports from the crash folder, or the file you get when you go into Settings -> Game Data -> Export Crash logs.
-      placeholder: REQUIRED if you are reporting a crash.
+      label: Logs
+      description: For crashes, attach the file from Settings -> Game Data -> Export Crash logs.
     validations:
       required: false
+
   - type: checkboxes
     id: agreement
     attributes:
-      label: Submission
-      description: Check the boxes to confirm that you have read the lines below.
+      label: Before submitting
       options:
-        - label: I have updated to the latest release (https://github.com/Anuken/Mindustry/releases) to make sure my issue has not been fixed.
+        - label: I am using the latest public prerelease or the latest `public-master` build.
           required: true
-        - label: I have searched the closed and open issues to make sure that this problem has not already been reported.
+        - label: I searched the open and closed issues for the same problem.
           required: true
-        - label: "I am not using Foo's Client."
+        - label: This problem is related to a public Mindustry-UX change, not only to official Mindustry.
           required: true
-        - label: "This issue occurs with no mods enabled."
-          required: true
-        - label: "I have attached a valid save file."
+        - label: I have removed personal data, credentials, and local paths from anything I attach.
           required: true

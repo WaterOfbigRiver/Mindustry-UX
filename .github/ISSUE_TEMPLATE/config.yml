@@ -1,8 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Feature request
+  - name: Official Mindustry bug reports
+    url: https://github.com/Anuken/Mindustry/issues
+    about: If the problem also happens in official Mindustry, report it upstream instead.
+  - name: Official Mindustry suggestions
     url: https://github.com/Anuken/Mindustry-Suggestions/issues/new/choose
-    about: Do not make a new issue for feature requests! Instead, post it in suggestions repository.
-  - name: Question
-    url: https://discord.com/invite/mindustry
-    about: Questions about the game should be asked in the Discord, not in the issue tracker. 
+    about: Feature requests for the game itself belong in the official suggestions repository.
+  - name: Mindustry-UX releases
+    url: https://github.com/WaterOfbigRiver/Mindustry-UX/releases
+    about: Check the latest prerelease, source commit, and SHA-256 checksums before reporting a bug.
