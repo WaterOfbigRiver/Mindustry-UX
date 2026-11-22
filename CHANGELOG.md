@@ -6,6 +6,32 @@ This file covers only changes made by this fork. Upstream Mindustry changes are 
 
 ## [Unreleased]
 
+## [0.1.0-alpha.3] - 2026-11-22
+
+Packaging-only prerelease. The game code and the two campaign UX changes are unchanged from `0.1.0-alpha.2`.
+
+### Added
+
+- `Mindustry-UX-v0.1.0-alpha.3-android-release.apk`: release-signed Android build for distribution testing. It uses application ID `io.github.waterofbigriver.mindustryux` and label `Mindustry-UX`, so it can coexist with the official app.
+- Signing is performed locally with an RSA-4096 key kept outside the repository; the certificate SHA-256 fingerprint is published in the release notes.
+
+### Changed
+
+- Android `applicationId` changed from `io.anuke.mindustry` to `io.github.waterofbigriver.mindustryux`; the launcher label is now `Mindustry-UX`.
+- Android `versionCode` is now 3 (was 1) so future signed builds can upgrade this one.
+- README documents the signed build flow and the application-ID change; the Android debug section uses the new ID.
+
+### Not included
+
+- The Windows x64 package is not rebuilt for this release; the unsigned `v0.1.0-alpha.2` package remains available there.
+- No automatic migration from `io.anuke.mindustry` data: installing the new package starts with an empty data directory.
+
+### Verified
+
+- `./gradlew tests:cleanTest tests:test` — 349 tests, 0 failures, 0 errors.
+- `./gradlew android:assembleRelease` — `apksigner verify` and `zipalign -c` pass; `aapt2` reports package `io.github.waterofbigriver.mindustryux`, version `8-Mindustry-UX-3`, versionCode 3.
+- Emulator install, cold launch, and upgrade from an earlier build signed with the same key were verified.
+
 ## [0.1.0-alpha.2] - 2026-11-22
 
 Packaging-only prerelease. The game code and the two campaign UX changes are unchanged from `0.1.0-alpha.1`.

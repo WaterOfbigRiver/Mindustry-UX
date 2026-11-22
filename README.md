@@ -85,17 +85,16 @@ Experimental developer UI and startup themes, RTS-style mouse changes, unlimited
 
 ## Download
 
-See the latest prerelease, [v0.1.0-alpha.2](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/tag/v0.1.0-alpha.2), for downloads. Each release lists the exact source commit used for its JAR files and provides SHA-256 checksums. Fork changes per version are listed in [CHANGELOG.md](CHANGELOG.md).
+See the latest prerelease, [v0.1.0-alpha.3](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/tag/v0.1.0-alpha.3), for downloads. Each release lists the exact source commit used for its JAR files and provides SHA-256 checksums. Fork changes per version are listed in [CHANGELOG.md](CHANGELOG.md).
 
-`v0.1.0-alpha.2` is a prerelease providing:
+`v0.1.0-alpha.3` is a prerelease providing:
 
-- [`Mindustry.jar`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.2/Mindustry.jar) — desktop build (Java 17 required)
-- [`server-release.jar`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.2/server-release.jar) — headless server
-- [`Mindustry-UX-v0.1.0-alpha.2-windows-x64.zip`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.2/Mindustry-UX-v0.1.0-alpha.2-windows-x64.zip) — Windows x64 app image with a bundled Java runtime, launched from `Mindustry-UX.exe`; the executable is unsigned, so SmartScreen may warn
-- [`Mindustry-UX-v0.1.0-alpha.2-android-debug.apk`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.2/Mindustry-UX-v0.1.0-alpha.2-android-debug.apk) — **debug-signed** Android build for testing only; it keeps the official `io.anuke.mindustry` application ID, so uninstall the official app first
-- [`SHA256SUMS.txt`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.2/SHA256SUMS.txt) — checksums for the published files
+- [`Mindustry.jar`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.3/Mindustry.jar) — desktop build (Java 17 required)
+- [`server-release.jar`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.3/server-release.jar) — headless server
+- [`Mindustry-UX-v0.1.0-alpha.3-android-release.apk`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.3/Mindustry-UX-v0.1.0-alpha.3-android-release.apk) — **release-signed** Android build with application ID `io.github.waterofbigriver.mindustryux` and label `Mindustry-UX`; it can be installed alongside the official app, but it cannot upgrade the earlier debug APK and does not import existing game data
+- [`SHA256SUMS.txt`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.3/SHA256SUMS.txt) — checksums for the published files
 
-Back up your game data before trying a prerelease; save compatibility with later versions is not guaranteed. The Android APK is a debug build, not a release build, and is not suitable for distribution or long-term use.
+Back up your game data before trying a prerelease; save compatibility with later versions is not guaranteed. The Windows x64 package from `v0.1.0-alpha.2` is not included in this release.
 
 ## Build from source
 
@@ -132,16 +131,27 @@ Build an Android debug APK with an installed Android SDK (`compileSdk 36`, `buil
 
 ```bash
 ANDROID_HOME=/path/to/android-sdk ./gradlew android:assembleDebug \
-  -PversionType=Mindustry-UX -PversionModifier=alpha -Pbuildversion=2
+  -PversionType=Mindustry-UX -PversionModifier=alpha -Pbuildversion=3
 ```
 
-The APK is written to `android/build/outputs/apk/debug/android-debug.apk`. It is debug-signed and keeps the official `io.anuke.mindustry` application ID, so it cannot be installed alongside or over an official build.
+The APK is written to `android/build/outputs/apk/debug/android-debug.apk`. It uses application ID `io.github.waterofbigriver.mindustryux` and is debug-signed, so it can coexist with the official app but cannot upgrade the signed release build.
+
+A signed release build reads the keystore from Gradle properties, so secrets stay outside the repository:
+
+```bash
+ORG_GRADLE_PROJECT_RELEASE_STORE_FILE=/path/to/release.jks \
+ORG_GRADLE_PROJECT_RELEASE_STORE_PASSWORD=... \
+ORG_GRADLE_PROJECT_RELEASE_KEY_ALIAS=... \
+ORG_GRADLE_PROJECT_RELEASE_KEY_PASSWORD=... \
+ANDROID_HOME=/path/to/android-sdk ./gradlew android:assembleRelease -Prelease \
+  -PversionType=Mindustry-UX -PversionModifier=alpha -Pbuildversion=3
+```
 
 Builds used for a release are produced with an explicit, non-official version type:
 
 ```bash
 ./gradlew desktop:dist server:dist \
-  -PversionType=Mindustry-UX -PversionModifier=alpha -Pbuildversion=2 -PshowCommitHash
+  -PversionType=Mindustry-UX -PversionModifier=alpha -Pbuildversion=3 -PshowCommitHash
 ```
 
 The resulting `version.properties` reports `type=Mindustry-UX`, so a modified build never identifies itself as an official Mindustry build.
@@ -150,11 +160,12 @@ The Gradle dependency is pinned through `archash` (`7445105cd2`); CI fetches Arc
 
 ## Verification
 
-`v0.1.0-alpha.2` uses the same game code as `v0.1.0-alpha.1` and adds packaging and build fixes:
+`v0.1.0-alpha.3` changes Android identity and packaging only; the game code is unchanged from `v0.1.0-alpha.2`:
 
 - `./gradlew tests:cleanTest tests:test` — 349 tests, 0 failures, 0 errors
-- `./gradlew android:assembleDebug` — debug-signed APK, package `io.anuke.mindustry`
-- Windows package: the release `Mindustry.jar` is packaged with `jpackage` by the manual `Windows EXE` workflow; the JAR inside the package matches the released checksum
+- `./gradlew android:assembleRelease` — release-signed APK, package `io.github.waterofbigriver.mindustryux`, version `8-Mindustry-UX-3`, versionCode 3
+- `apksigner verify` and `zipalign -c` pass; the signing certificate SHA-256 is listed in the release notes
+- Emulator install, launch, and upgrade from an earlier build signed with the same key were verified
 - Secret scanning (Gitleaks) over the final tree and the full public history: only pre-existing upstream false positives (a Serbian keybind label and the public upstream Discord client ID)
 
 ## Releases and tags
