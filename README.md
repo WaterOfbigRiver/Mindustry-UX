@@ -195,7 +195,7 @@ The source corresponding to a published binary is available from the same releas
 
 除两项公开改动外，不包含实验性开发者界面、鼠标操作改造、无限容量、事件日志/HUD 重做等功能。首次预发布请先备份游戏数据。
 
-[v0.1.0-alpha.2 Release](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/tag/v0.1.0-alpha.2) 中的 Android APK 为 **debug 签名测试包**，包名仍是官方的 `io.anuke.mindustry`，安装前需卸载官方版，不适合分发或长期使用。Windows 包为自带 Java 运行时的 x64 应用目录压缩包，解压后运行 `Mindustry-UX.exe`；该程序未做代码签名，SmartScreen 可能提示风险。
+[v0.1.0-alpha.3 Release](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/tag/v0.1.0-alpha.3) 中的 Android APK 为 **正式签名包**，包名 `io.github.waterofbigriver.mindustryux`、应用名 `Mindustry-UX`，可与官方版共存安装；但不能覆盖升级 `v0.1.0-alpha.2`（密钥不同），且新包名使用全新数据目录，需要手动迁移存档。Windows 包本次未重建，未签名的 `v0.1.0-alpha.2` Windows 包仍可下载。
 
 构建需要 JDK 17，桌面产物为 `desktop/build/libs/Mindustry.jar`，服务端产物为 `server/build/libs/server-release.jar`。
 

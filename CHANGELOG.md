@@ -94,6 +94,7 @@ First public prerelease. Built from source commit [`67f0b478dd`](https://github.
 - The desktop JAR requires Java 17. Other JDK versions are outside the tested baseline.
 - Issue reports are limited to the public changes above; bugs that also occur in official Mindustry belong upstream.
 
-[Unreleased]: https://github.com/WaterOfbigRiver/Mindustry-UX/compare/v0.1.0-alpha.2...public-master
+[Unreleased]: https://github.com/WaterOfbigRiver/Mindustry-UX/compare/v0.1.0-alpha.3...public-master
+[0.1.0-alpha.3]: https://github.com/WaterOfbigRiver/Mindustry-UX/releases/tag/v0.1.0-alpha.3
 [0.1.0-alpha.2]: https://github.com/WaterOfbigRiver/Mindustry-UX/releases/tag/v0.1.0-alpha.2
 [0.1.0-alpha.1]: https://github.com/WaterOfbigRiver/Mindustry-UX/releases/tag/v0.1.0-alpha.1
