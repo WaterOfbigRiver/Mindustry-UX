@@ -138,7 +138,9 @@ dependencies{
     }
 
     def sdkFile = new File((String)findSdkDir(), "/platforms/android-${highestVersion}/android.jar")
-    if(sdkFile.exists()) compileOnly files(sdkFile.absolutePath)
+    //AGP already puts the compileSdk android.jar on the bootclasspath. Adding it again as compileOnly
+    //makes the same java.* classes both library and program classes, which makes R8 8.2 fail on java.lang.Record.
+    //if(sdkFile.exists()) compileOnly files(sdkFile.absolutePath)
 }
 
 task copyAndroidNatives(){
