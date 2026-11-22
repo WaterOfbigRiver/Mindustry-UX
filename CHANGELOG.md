@@ -6,6 +6,28 @@ This file covers only changes made by this fork. Upstream Mindustry changes are 
 
 ## [Unreleased]
 
+## [0.1.0-alpha.2] - 2026-11-22
+
+Packaging-only prerelease. The game code and the two campaign UX changes are unchanged from `0.1.0-alpha.1`.
+
+### Added
+
+- `Mindustry-UX-v0.1.0-alpha.2-android-debug.apk`: debug-signed Android build for testing. It keeps the official `io.anuke.mindustry` application ID, so the official app must be uninstalled first.
+- `Mindustry-UX-v0.1.0-alpha.2-windows-x64.zip`: Windows x64 app image with a bundled Java runtime, built from the release JAR with `jpackage` by the manual `Windows EXE` workflow, launched via `Mindustry-UX.exe`. The executable is unsigned.
+- Release notes are now published in English and Chinese.
+
+### Changed
+
+- Gradle wrapper pinned to 8.7 for the desktop and Android builds. Gradle 9 is not compatible with the pinned Android Gradle Plugin 8.2.2.
+- Removed the duplicate `compileOnly` `android.jar` from the Android build, which made R8 8.2 fail on `java.lang.Record`.
+- `README.md` documents the Android debug build, Windows package, and their signing and installation caveats.
+
+### Verified
+
+- `./gradlew tests:cleanTest tests:test` — 349 tests, 0 failures, 0 errors.
+- `./gradlew android:assembleDebug` — produces `android/build/outputs/apk/debug/android-debug.apk`; `aapt2` reports package `io.anuke.mindustry`, version `8-Mindustry-UX-2`.
+- The Windows package contains `Mindustry-UX/Mindustry-UX.exe` (x86-64) and a bundled runtime; the `Mindustry.jar` inside matches the released JAR checksum.
+
 ## [0.1.0-alpha.1] - 2026-11-22
 
 First public prerelease. Built from source commit [`67f0b478dd`](https://github.com/WaterOfbigRiver/Mindustry-UX/commit/67f0b478ddcc0ab58823b0c426276531e61586b5), whose parent is the audited upstream commit `19a0f40d44514f4802a8b79770456e7e32e34da0`.
@@ -46,5 +68,6 @@ First public prerelease. Built from source commit [`67f0b478dd`](https://github.
 - The desktop JAR requires Java 17. Other JDK versions are outside the tested baseline.
 - Issue reports are limited to the public changes above; bugs that also occur in official Mindustry belong upstream.
 
-[Unreleased]: https://github.com/WaterOfbigRiver/Mindustry-UX/compare/v0.1.0-alpha.1...public-master
+[Unreleased]: https://github.com/WaterOfbigRiver/Mindustry-UX/compare/v0.1.0-alpha.2...public-master
+[0.1.0-alpha.2]: https://github.com/WaterOfbigRiver/Mindustry-UX/releases/tag/v0.1.0-alpha.2
 [0.1.0-alpha.1]: https://github.com/WaterOfbigRiver/Mindustry-UX/releases/tag/v0.1.0-alpha.1

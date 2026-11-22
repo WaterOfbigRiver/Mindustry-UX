@@ -87,13 +87,15 @@ Experimental developer UI and startup themes, RTS-style mouse changes, unlimited
 
 See [Releases](https://github.com/WaterOfbigRiver/Mindustry-UX/releases). Each release lists the exact source commit used for its JAR files and provides SHA-256 checksums. Fork changes per version are listed in [CHANGELOG.md](CHANGELOG.md).
 
-`v0.1.0-alpha.1` is a prerelease providing:
+`v0.1.0-alpha.2` is a prerelease providing:
 
 - `Mindustry.jar` — desktop build (Java 17 required)
 - `server-release.jar` — headless server
-- `SHA256SUMS.txt` — checksums for both files
+- `Mindustry-UX-v0.1.0-alpha.2-windows-x64.zip` — Windows x64 app image with a bundled Java runtime, launched from `Mindustry-UX.exe`; the executable is unsigned, so SmartScreen may warn
+- `Mindustry-UX-v0.1.0-alpha.2-android-debug.apk` — **debug-signed** Android build for testing only; it keeps the official `io.anuke.mindustry` application ID, so uninstall the official app first
+- `SHA256SUMS.txt` — checksums for the published files
 
-It does **not** provide an Android APK. Back up your game data before trying a prerelease; save compatibility with later versions is not guaranteed.
+Back up your game data before trying a prerelease; save compatibility with later versions is not guaranteed. The Android APK is a debug build, not a release build, and is not suitable for distribution or long-term use.
 
 ## Build from source
 
@@ -112,6 +114,8 @@ Outputs:
 - `desktop/build/libs/Mindustry.jar`
 - `server/build/libs/server-release.jar`
 
+The Gradle wrapper is pinned to **Gradle 8.7**, which is the tested version for both the desktop build and the Android build.
+
 Run the automated tests with:
 
 ```bash
@@ -124,11 +128,20 @@ Run the desktop client locally:
 ./gradlew desktop:run
 ```
 
+Build an Android debug APK with an installed Android SDK (`compileSdk 36`, `build-tools 36.0.0`):
+
+```bash
+ANDROID_HOME=/path/to/android-sdk ./gradlew android:assembleDebug \
+  -PversionType=Mindustry-UX -PversionModifier=alpha -Pbuildversion=2
+```
+
+The APK is written to `android/build/outputs/apk/debug/android-debug.apk`. It is debug-signed and keeps the official `io.anuke.mindustry` application ID, so it cannot be installed alongside or over an official build.
+
 Builds used for a release are produced with an explicit, non-official version type:
 
 ```bash
 ./gradlew desktop:dist server:dist \
-  -PversionType=Mindustry-UX -PversionModifier=alpha -Pbuildversion=1 -PshowCommitHash
+  -PversionType=Mindustry-UX -PversionModifier=alpha -Pbuildversion=2 -PshowCommitHash
 ```
 
 The resulting `version.properties` reports `type=Mindustry-UX`, so a modified build never identifies itself as an official Mindustry build.
@@ -137,12 +150,11 @@ The Gradle dependency is pinned through `archash` (`7445105cd2`); CI fetches Arc
 
 ## Verification
 
-The published prerelease was built from a fresh single-branch clone of `public-master`:
+`v0.1.0-alpha.2` uses the same game code as `v0.1.0-alpha.1` and adds packaging and build fixes:
 
 - `./gradlew tests:cleanTest tests:test` — 349 tests, 0 failures, 0 errors
-- Desktop `Mindustry.jar`: 88,516,853 bytes
-- Server `server-release.jar`: 19,302,955 bytes
-- `version.properties`: `type=Mindustry-UX`, `build=1`, `modifier=alpha`, `commitHash=67f0b478dd`
+- `./gradlew android:assembleDebug` — debug-signed APK, package `io.anuke.mindustry`
+- Windows package: the release `Mindustry.jar` is packaged with `jpackage` by the manual `Windows EXE` workflow; the JAR inside the package matches the released checksum
 - Secret scanning (Gitleaks) over the final tree and the full public history: only pre-existing upstream false positives (a Serbian keybind label and the public upstream Discord client ID)
 
 ## Releases and tags
@@ -170,7 +182,9 @@ The source corresponding to a published binary is available from the same releas
 
 备份规则：每个区块只保留一份显式备份，再次开始新游戏会覆盖；恢复会覆盖当前区块存档；备份只存在本地，不参与云同步；备份失败会中止新游戏，不会删除当前存档。
 
-不包含 Android APK，不包含实验性开发者界面、鼠标操作改造、无限容量、事件日志/HUD 重做等功能。首次预发布请先备份游戏数据。
+除两项公开改动外，不包含实验性开发者界面、鼠标操作改造、无限容量、事件日志/HUD 重做等功能。首次预发布请先备份游戏数据。
+
+Release 中的 Android APK 为 **debug 签名测试包**，包名仍是官方的 `io.anuke.mindustry`，安装前需卸载官方版，不适合分发或长期使用。Windows 包为自带 Java 运行时的 x64 应用目录压缩包，解压后运行 `Mindustry-UX.exe`；该程序未做代码签名，SmartScreen 可能提示风险。
 
 构建需要 JDK 17，桌面产物为 `desktop/build/libs/Mindustry.jar`，服务端产物为 `server/build/libs/server-release.jar`。
 
