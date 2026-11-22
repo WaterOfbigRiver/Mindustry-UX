@@ -85,15 +85,15 @@ Experimental developer UI and startup themes, RTS-style mouse changes, unlimited
 
 ## Download
 
-See [Releases](https://github.com/WaterOfbigRiver/Mindustry-UX/releases). Each release lists the exact source commit used for its JAR files and provides SHA-256 checksums. Fork changes per version are listed in [CHANGELOG.md](CHANGELOG.md).
+See the latest prerelease, [v0.1.0-alpha.2](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/tag/v0.1.0-alpha.2), for downloads. Each release lists the exact source commit used for its JAR files and provides SHA-256 checksums. Fork changes per version are listed in [CHANGELOG.md](CHANGELOG.md).
 
 `v0.1.0-alpha.2` is a prerelease providing:
 
-- `Mindustry.jar` — desktop build (Java 17 required)
-- `server-release.jar` — headless server
-- `Mindustry-UX-v0.1.0-alpha.2-windows-x64.zip` — Windows x64 app image with a bundled Java runtime, launched from `Mindustry-UX.exe`; the executable is unsigned, so SmartScreen may warn
-- `Mindustry-UX-v0.1.0-alpha.2-android-debug.apk` — **debug-signed** Android build for testing only; it keeps the official `io.anuke.mindustry` application ID, so uninstall the official app first
-- `SHA256SUMS.txt` — checksums for the published files
+- [`Mindustry.jar`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.2/Mindustry.jar) — desktop build (Java 17 required)
+- [`server-release.jar`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.2/server-release.jar) — headless server
+- [`Mindustry-UX-v0.1.0-alpha.2-windows-x64.zip`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.2/Mindustry-UX-v0.1.0-alpha.2-windows-x64.zip) — Windows x64 app image with a bundled Java runtime, launched from `Mindustry-UX.exe`; the executable is unsigned, so SmartScreen may warn
+- [`Mindustry-UX-v0.1.0-alpha.2-android-debug.apk`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.2/Mindustry-UX-v0.1.0-alpha.2-android-debug.apk) — **debug-signed** Android build for testing only; it keeps the official `io.anuke.mindustry` application ID, so uninstall the official app first
+- [`SHA256SUMS.txt`](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/download/v0.1.0-alpha.2/SHA256SUMS.txt) — checksums for the published files
 
 Back up your game data before trying a prerelease; save compatibility with later versions is not guaranteed. The Android APK is a debug build, not a release build, and is not suitable for distribution or long-term use.
 
@@ -184,7 +184,7 @@ The source corresponding to a published binary is available from the same releas
 
 除两项公开改动外，不包含实验性开发者界面、鼠标操作改造、无限容量、事件日志/HUD 重做等功能。首次预发布请先备份游戏数据。
 
-Release 中的 Android APK 为 **debug 签名测试包**，包名仍是官方的 `io.anuke.mindustry`，安装前需卸载官方版，不适合分发或长期使用。Windows 包为自带 Java 运行时的 x64 应用目录压缩包，解压后运行 `Mindustry-UX.exe`；该程序未做代码签名，SmartScreen 可能提示风险。
+[v0.1.0-alpha.2 Release](https://github.com/WaterOfbigRiver/Mindustry-UX/releases/tag/v0.1.0-alpha.2) 中的 Android APK 为 **debug 签名测试包**，包名仍是官方的 `io.anuke.mindustry`，安装前需卸载官方版，不适合分发或长期使用。Windows 包为自带 Java 运行时的 x64 应用目录压缩包，解压后运行 `Mindustry-UX.exe`；该程序未做代码签名，SmartScreen 可能提示风险。
 
 构建需要 JDK 17，桌面产物为 `desktop/build/libs/Mindustry.jar`，服务端产物为 `server/build/libs/server-release.jar`。
 
