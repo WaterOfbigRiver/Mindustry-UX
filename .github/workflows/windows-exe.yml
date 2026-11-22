@@ -1,0 +1,62 @@
+name: Windows EXE
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag whose Mindustry.jar is packaged
+        required: true
+        default: v0.1.0-alpha.1
+      app-version:
+        description: Numeric app version for jpackage (e.g. 0.1.0)
+        required: true
+        default: 0.1.0
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v7
+    - name: Set up JDK 17
+      uses: actions/setup-java@v5
+      with:
+        distribution: 'temurin'
+        java-version: 17
+    - name: Download release JAR
+      shell: pwsh
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        New-Item -ItemType Directory -Force -Path build/jpackage-input | Out-Null
+        gh release download "${{ inputs.tag }}" --repo "$env:GITHUB_REPOSITORY" --pattern "Mindustry.jar" --dir build/jpackage-input --clobber
+        Get-ChildItem build/jpackage-input
+    - name: Build Windows app image
+      shell: pwsh
+      run: |
+        python -m pip install --quiet pillow
+        python -c "from PIL import Image; Image.open('core/assets/icons/icon.png').save('build/icon.ico', sizes=[(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)])"
+        $jpackageArgs = @(
+          '--type', 'app-image',
+          '--name', 'Mindustry-UX',
+          '--app-version', '${{ inputs.app-version }}',
+          '--input', 'build/jpackage-input',
+          '--main-jar', 'Mindustry.jar',
+          '--main-class', 'mindustry.desktop.DesktopLauncher',
+          '--dest', 'build/jpackage',
+          '--icon', 'build/icon.ico',
+          '--java-options', '-Dhttps.protocols=TLSv1.2,TLSv1.1,TLSv1',
+          '--java-options', '-XX:+ShowCodeDetailsInExceptionMessages'
+        )
+        & jpackage @jpackageArgs
+        if ($LASTEXITCODE -ne 0) { throw "jpackage failed with exit code $LASTEXITCODE" }
+        Compress-Archive -Path build/jpackage/Mindustry-UX -DestinationPath "Mindustry-UX-${{ inputs.tag }}-windows-x64.zip"
+    - name: Upload Windows package
+      uses: actions/upload-artifact@v4
+      with:
+        name: Mindustry-UX-windows-x64
+        path: Mindustry-UX-*-windows-x64.zip
+        if-no-files-found: error
